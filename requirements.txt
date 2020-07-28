@@ -1,0 +1,3 @@
+qtaf
+qt4s_ext_tencent
+qt4s

@@ -1,0 +1,22 @@
+# mac
+.DS_Store
+
+# python
+__pycache__
+*.pyc
+
+# IDE
+/.idea
+
+# virtualenv
+/venv
+
+
+# accounts
+/secret/*
+!/secret/__init__.py
+!/secret/*.example
+
+# log
+*.log
+*.log.*
