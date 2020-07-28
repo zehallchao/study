@@ -57,7 +57,7 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
     def pre_test(self):
         # ==========
         self.start_step('创建1个组')
-        self.group_name = str(uuid.uuid4())
+        self.group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
 
         resp = self.api3.CreateGroup(Name=self.group_name, Description=self.group_name)
         body_json = json.loads(resp.body.dumps())

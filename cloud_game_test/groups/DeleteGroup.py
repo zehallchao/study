@@ -23,7 +23,7 @@ class DeleteGroupTestCase(ClougGameTestCaseBase):
     def pre_test(self):
         # ==========
         self.start_step('创建1个组')
-        group_name = str(uuid.uuid4())
+        group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
 
         resp = self.api3.CreateGroup(Name=group_name, Description=group_name)
         body_json = json.loads(resp.body.dumps())

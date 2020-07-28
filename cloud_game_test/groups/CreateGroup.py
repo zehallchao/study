@@ -24,7 +24,7 @@ class CreateGroupTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('CreateGroup')
 
-        group_name = str(uuid.uuid4())
+        group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
         resp = self.api3.CreateGroup(Name=group_name, Description=group_name)
 
         # ==========
