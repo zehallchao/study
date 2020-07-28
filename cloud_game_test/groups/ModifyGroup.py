@@ -54,8 +54,8 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
         self.start_step('检查与期望的组信息一致')
         first_group = get_by_path(body_json, 'Response.Groups.0', None)
         if self.assert_not_none('第1个组不为空', first_group):
-            self.assert_equal_by_path('Name必须一致', first_group, 'Name', group_name)
-            self.assert_equal_by_path('Description必须一致', first_group, 'Description', group_name)
+            self.assert_equal_by_path('Name为{}'.format(self.group_name), first_group, 'Name', self.group_name)
+            self.assert_equal_by_path('Description为{}'.format(self.group_name), first_group, 'Description', self.group_name)
 
     def post_test(self):
         group_id = getattr(self, 'group_id', None)

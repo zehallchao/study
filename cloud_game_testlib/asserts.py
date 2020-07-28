@@ -14,6 +14,10 @@ __author__ = 'bingxili'
 
 
 class AssertionMixin(object):
+    def _record_assert_success(self, message):
+        msg = ("检查点通过: {message}".format(message=smart_text(message)))
+        self._TestCase__testresult.log_record(EnumLogLevel.INFO, msg)
+
     def _record_assert_exception_failed(self, message=None):
         stack = get_last_frame_stack(3)
         exc_type, exc, unused_exc_traceback = sys.exc_info()
@@ -38,12 +42,14 @@ class AssertionMixin(object):
 
     def assert_true(self, msg, actual):
         if bool(actual):
+            self._record_assert_success(msg)
             return True
         self._record_assert_equal_failed(msg, actual, True)
         return False
 
     def assert_false(self, msg, actual):
         if not bool(actual):
+            self._record_assert_success(msg)
             return True
         self._record_assert_equal_failed(msg, actual, False)
         return False
@@ -62,12 +68,14 @@ class AssertionMixin(object):
 
     def assert_none(self, msg, actual):
         if actual is None:
+            self._record_assert_success(msg)
             return True
         self._record_assert_none_failed(msg, actual, True)
         return False
 
     def assert_not_none(self, msg, actual):
         if actual is not None:
+            self._record_assert_success(msg)
             return True
         self._record_assert_none_failed(msg, actual, False)
         return False
@@ -111,24 +119,28 @@ class AssertionMixin(object):
 
     def assert_gt(self, msg, actual, expect):
         if actual > expect:
+            self._record_assert_success(msg)
             return True
         self._record_assert_compare_failed(msg, 1, actual, expect)
         return False
 
     def assert_gte(self, msg, actual, expect):
-        if actual > expect:
+        if actual >= expect:
+            self._record_assert_success(msg)
             return True
         self._record_assert_compare_failed(msg, 2, actual, expect)
         return False
 
     def assert_lt(self, msg, actual, expect):
-        if actual > expect:
+        if actual < expect:
+            self._record_assert_success(msg)
             return True
         self._record_assert_compare_failed(msg, -1, actual, expect)
         return False
 
     def assert_lte(self, msg, actual, expect):
-        if actual > expect:
+        if actual <= expect:
+            self._record_assert_success(msg)
             return True
         self._record_assert_compare_failed(msg, -2, actual, expect)
         return False
@@ -142,6 +154,7 @@ class AssertionMixin(object):
         try:
             value = get_by_path(obj, path)
             if value == expect:
+                self._record_assert_success(msg)
                 return True
             self._record_assert_equal_failed(msg, value, expect)
             return False
@@ -158,6 +171,7 @@ class AssertionMixin(object):
         try:
             value = get_by_path(obj, path)
             if value > expect:
+                self._record_assert_success(msg)
                 return True
             self._record_assert_compare_failed(msg, 1, value, expect)
             return False
@@ -174,6 +188,7 @@ class AssertionMixin(object):
         try:
             value = get_by_path(obj, path)
             if value >= expect:
+                self._record_assert_success(msg)
                 return True
             self._record_assert_compare_failed(msg, 2, value, expect)
             return False
@@ -190,6 +205,7 @@ class AssertionMixin(object):
         try:
             value = get_by_path(obj, path)
             if value < expect:
+                self._record_assert_success(msg)
                 return True
             self._record_assert_compare_failed(msg, -1, value, expect)
             return False
@@ -206,6 +222,7 @@ class AssertionMixin(object):
         try:
             value = get_by_path(obj, path)
             if value <= expect:
+                self._record_assert_success(msg)
                 return True
             self._record_assert_compare_failed(msg, -2, value, expect)
             return False
@@ -217,14 +234,16 @@ class AssertionMixin(object):
 class HttpAssertionMixin(AssertionMixin):
     def assert_http_status_code(self, msg, response, expect):
         status_code = response.status_code
-        if response.status_code != expect:
-            self._record_assert_equal_failed(msg, status_code, expect)
-            return False
-        return True
+        if response.status_code == expect:
+            self._record_assert_success(msg)
+            return True
+        self._record_assert_equal_failed(msg, status_code, expect)
+        return False
 
     def assert_http_ok(self, msg, response):
         status_code = response.status_code
-        if response.status_code != 200:
-            self._record_assert_equal_failed(msg, status_code, 200)
-            return False
-        return True
+        if response.status_code == 200:
+            self._record_assert_success(msg)
+            return True
+        self._record_assert_equal_failed(msg, status_code, 200)
+        return False

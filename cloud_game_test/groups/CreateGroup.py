@@ -35,7 +35,7 @@ class CreateGroupTestCase(ClougGameTestCaseBase):
         self.start_step('检查返回GroupId')
         body_json = json.loads(resp.body.dumps())
         group_id = get_by_path(body_json, 'Response.GroupId', None)
-        self.assert_not_none('GroupId不为空', group_id)
+        self.assert_not_none('Response.GroupId不为空', group_id)
 
         self.group_id = group_id
 
