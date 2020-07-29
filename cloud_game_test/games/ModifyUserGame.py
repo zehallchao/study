@@ -21,13 +21,8 @@ class ModifyUserGameTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         self.start_step('通过DescribeUserGameList选定一个期望游戏')
-        params = {
-            'GameId': ''
-        }
-        resp = self.api3_call('DescribeUserGameList', params)
-        body_json = resp.json()
-
-        self.game = get_by_path(body_json, 'Response.GameList.0', None)
+        games = self.api3_gs_helper.list_user_games()
+        self.game = games[0] if games else None
         self.game_id = get_by_path(self.game, 'GameId', None)
 
     def run_test(self):
@@ -43,7 +38,7 @@ class ModifyUserGameTestCase(ClougGameTestCaseBase):
             'GameId': game_id,
             'Description': self.game['Description']
         }
-        resp = self.api3_call('ModifyUserGame', params)
+        resp = self.api3client.call('ModifyUserGame', params)
 
         # ==========
         self.start_step('检查返回')
@@ -51,17 +46,12 @@ class ModifyUserGameTestCase(ClougGameTestCaseBase):
 
         # ==========
         self.start_step('通过DescribeUserGameList获取信息, 与期望信息一致')
-        params = {
-            'GameId': self.game_id
-        }
-        resp = self.api3_call('DescribeUserGameList', params)
-        body_json = resp.json()
+        game = self.api3_gs_helper.get_user_game_by_game_id(game_id)
 
-        first_game = get_by_path(body_json, 'Response.GameList.0', None)
-        if self.assert_not_none('第1个游戏不为空', first_game):
+        if self.assert_not_none('查询游戏不为空', game):
             for field_name in ('GameId', 'GameName', 'Description'):
                 expect_value = get_by_path(self.game, field_name)
-                self.assert_eq_by_path('{}与期望游戏一致'.format(field_name), first_game, field_name, expect_value)
+                self.assert_eq_by_path('{}与期望游戏一致'.format(field_name), game, field_name, expect_value)
 
 
 if __name__ == '__main__':

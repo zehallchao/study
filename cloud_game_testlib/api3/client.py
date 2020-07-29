@@ -149,9 +149,9 @@ class API3Client(object):
     def call(self, action, params=None, sign=None):
         params = params if params is not None else {}
 
+        self.logger.info('调用API {action}, 参数: {params}', action=action, params=json.dumps(params))
         params_with_action = {
             'Action': action
         }
         params_with_action.update(params)
-
         return self.request(params_with_action, sign=sign)

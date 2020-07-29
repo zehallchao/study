@@ -22,7 +22,7 @@ class DescribeGroupsTestCase(ClougGameTestCaseBase):
     def run_test(self):
         # ==========
         self.start_step('DescribeGroups无参数')
-        resp = self.api3_call('DescribeGroups')
+        resp = self.api3client.call('DescribeGroups')
 
         # ==========
         self.start_step('检查返回')
@@ -52,14 +52,7 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('创建1个期望分组')
         self.group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
-        params = {
-            'Name': self.group_name,
-            'Description': self.group_name
-        }
-        resp = self.api3_call('CreateGroup', params)
-        body_json = resp.json()
-
-        self.group_id = get_by_path(body_json, 'Response.GroupId', None)
+        self.group_id = self.api3_gs_helper.create_group(self.group_name, self.group_name)
 
     def run_test(self):
         group_id = getattr(self, 'group_id', None)
@@ -73,13 +66,12 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
             'Filters.0.Name': 'Name',
             'Filters.0.Values.0': self.group_name,
         }
-        resp = self.api3_call('DescribeGroups', params)
+        resp = self.api3client.call('DescribeGroups', params)
 
         # ==========
         self.start_step('检查返回, 与期望分组一致')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
-        # ==========
         body_json = resp.json()
 
         self.assert_eq_by_path('Response.Total为1', body_json, 'Response.Total', 1)
@@ -99,10 +91,7 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
             return
 
         self.start_step('删除创建的分组')
-        params = {
-            'GroupId': group_id
-        }
-        resp = self.api3_call('DeleteGroup', params)
+        self.api3_gs_helper.delete_group(group_id)
 
 
 if __name__ == '__main__':

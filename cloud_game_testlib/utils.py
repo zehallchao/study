@@ -56,7 +56,7 @@ def get_by_path(obj, attr_path, *args, **kwargs):
         attr_path = attr_path.split('.')
 
     has_default = True
-    if len(args) > 1:
+    if len(args) >= 1:
         default = args[0]
     elif kwargs:
         default = kwargs.get('default', None)

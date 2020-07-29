@@ -6,13 +6,12 @@ import uuid
 from testbase import TestCase
 
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
-from cloud_game_testlib.utils import get_by_path
 
 __author__ = 'bingxili'
 
 
 class DeleteGroupTestCase(ClougGameTestCaseBase):
-    '''DeleteGroup
+    '''DeleteGroup, 删除分组
     '''
     owner = "libingxi"
     timeout = 5
@@ -23,14 +22,7 @@ class DeleteGroupTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('创建1个分组')
         group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
-        params = {
-            'Name': group_name,
-            'Description': group_name
-        }
-        resp = self.api3_call('CreateGroup', params)
-        body_json = resp.json()
-
-        self.group_id = get_by_path(body_json, 'Response.GroupId', None)
+        self.group_id = self.api3_gs_helper.create_group(group_name, group_name)
 
     def run_test(self):
         group_id = getattr(self, 'group_id', None)
@@ -43,23 +35,16 @@ class DeleteGroupTestCase(ClougGameTestCaseBase):
         params = {
             'GroupId': group_id
         }
-        resp = self.api3_call('DeleteGroup', params)
+        resp = self.api3client.call('DeleteGroup', params)
 
         # ==========
         self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
         # ==========
-        self.start_step('通过DescribeGroups检查已经删除')
-        params = {
-            'GroupIds.0': group_id
-        }
-        resp = self.api3_call('DescribeGroups', params)
-        body_json = resp.json()
-
-        self.assert_eq_by_path('Response.Total为0', body_json, 'Response.Total', 0)
-        groups = get_by_path(body_json, 'Response.Groups', [])
-        self.assert_equal('Response.Groups为空', len(groups), 0)
+        self.start_step('通过DescribeGroups获取信息, 检查已经删除')
+        group = self.api3_gs_helper.get_group(group_id)
+        self.assert_none('查询分组为空', group)
 
         self.group_id = None
 
@@ -69,10 +54,7 @@ class DeleteGroupTestCase(ClougGameTestCaseBase):
             return
 
         self.start_step('删除创建的分组')
-        params = {
-            'GroupId': group_id
-        }
-        resp = self.api3_call('DeleteGroup', params)
+        self.api3_gs_helper.delete_group(group_id)
 
 
 if __name__ == '__main__':

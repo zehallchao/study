@@ -6,13 +6,12 @@ import uuid
 from testbase import TestCase
 
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
-from cloud_game_testlib.utils import get_by_path
 
 __author__ = 'bingxili'
 
 
 class ModifyGroupTestCase(ClougGameTestCaseBase):
-    '''ModifyGroup
+    '''ModifyGroup, 修改分组信息
     '''
     owner = "libingxi"
     timeout = 5
@@ -23,14 +22,7 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('创建1个分组')
         group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
-        params = {
-            'Name': group_name,
-            'Description': group_name
-        }
-        resp = self.api3_call('CreateGroup', params)
-        body_json = resp.json()
-
-        self.group_id = get_by_path(body_json, 'Response.GroupId', None)
+        self.group_id = self.api3_gs_helper.create_group(group_name, group_name)
 
     def run_test(self):
         group_id = getattr(self, 'group_id', None)
@@ -46,7 +38,7 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
             'Name': group_name,
             'Description': group_name
         }
-        resp = self.api3_call('ModifyGroup', params)
+        resp = self.api3client.call('ModifyGroup', params)
 
         # ==========
         self.start_step('检查返回')
@@ -54,16 +46,10 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
 
         # ==========
         self.start_step('通过DescribeGroups获取信息, 与期望信息一致')
-        params = {
-            'GroupIds.0': group_id
-        }
-        resp = self.api3_call('DescribeGroups', params)
-        body_json = resp.json()
-
-        first_group = get_by_path(body_json, 'Response.Groups.0', None)
-        if self.assert_not_none('第1个分组不为空', first_group):
+        group = self.api3_gs_helper.get_group(group_id)
+        if self.assert_not_none('查询分组不为空', group):
             for field_name in ('Name', 'Description'):
-                self.assert_eq_by_path('{}与期望分组一致'.format(field_name), first_group, field_name, group_name)
+                self.assert_eq_by_path('{}与期望分组一致'.format(field_name), group, field_name, group_name)
 
     def post_test(self):
         group_id = getattr(self, 'group_id', None)
@@ -71,10 +57,7 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
             return
 
         self.start_step('删除创建的分组')
-        params = {
-            'GroupId': group_id
-        }
-        resp = self.api3_call('DeleteGroup', params)
+        self.api3_gs_helper.delete_group(group_id)
 
 
 if __name__ == '__main__':

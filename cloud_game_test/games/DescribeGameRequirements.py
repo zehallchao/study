@@ -19,13 +19,8 @@ class DescribeGameRequirementsTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         self.start_step('通过DescribeUserGameList选定一个期望游戏')
-        params = {
-            'GameId': ''
-        }
-        resp = self.api3_call('DescribeUserGameList', params)
-        body_json = resp.json()
-
-        self.game = get_by_path(body_json, 'Response.GameList.0', None)
+        games = self.api3_gs_helper.list_user_games()
+        self.game = games[0] if games else None
         self.game_id = get_by_path(self.game, 'GameId', None)
 
     def run_test(self):
@@ -39,7 +34,7 @@ class DescribeGameRequirementsTestCase(ClougGameTestCaseBase):
         params = {
             'GameId': self.game_id
         }
-        resp = self.api3_call('DescribeGameRequirements', params)
+        resp = self.api3client.call('DescribeGameRequirements', params)
 
         # ==========
         self.start_step('检查返回')
