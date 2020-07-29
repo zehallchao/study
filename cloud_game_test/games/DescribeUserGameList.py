@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import json
-
 from testbase import TestCase
 
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
@@ -22,13 +20,17 @@ class DescribeUserGameListTestCase(ClougGameTestCaseBase):
     def run_test(self):
         # ==========
         self.start_step('DescribeUserGameList无参数')
-        resp = self.api3.DescribeUserGameList(GameId='')  # TODO 这个接口设计有些奇怪, 如果开放的话, 需要修改
+        # TODO 这个接口设计有些奇怪, 如果开放的话, 需要修改
+        params = {
+            'GameId': ''
+        }
+        resp = self.api3_call('DescribeUserGameList', params)
 
         # ==========
         self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
-        body_json = json.loads(resp.body.dumps())
+        body_json = resp.json()
 
         games = get_by_path(body_json, 'Response.GameList', None)
         self.assert_not_none('Response.GameList不为空', games)
@@ -44,8 +46,11 @@ class DescribeUserGameListByGameIdTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         self.start_step('通过DescribeUserGameList选定一个期望游戏')
-        resp = self.api3.DescribeUserGameList(GameId='')
-        body_json = json.loads(resp.body.dumps())
+        params = {
+            'GameId': ''
+        }
+        resp = self.api3_call('DescribeUserGameList', params)
+        body_json = resp.json()
 
         self.game = get_by_path(body_json, 'Response.GameList.0', None)
         self.game_id = get_by_path(self.game, 'GameId', None)
@@ -58,13 +63,16 @@ class DescribeUserGameListByGameIdTestCase(ClougGameTestCaseBase):
 
         # ==========
         self.start_step('DescribeUserGameList根据GameId查询, GameId={}'.format(game_id))
-        resp = self.api3.DescribeUserGameList(GameId=self.game_id)
+        params = {
+            'GameId': self.game_id
+        }
+        resp = self.api3_call('DescribeUserGameList', params)
 
         # ==========
         self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
-        body_json = json.loads(resp.body.dumps())
+        body_json = resp.json()
 
         games = get_by_path(body_json, 'Response.GameList', [])
         self.assert_equal('Response.GameList只有1个', len(games), 1)
@@ -77,4 +85,5 @@ class DescribeUserGameListByGameIdTestCase(ClougGameTestCaseBase):
 
 
 if __name__ == '__main__':
+    # DescribeUserGameListTestCase().debug_run()
     DescribeUserGameListByGameIdTestCase().debug_run()

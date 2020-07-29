@@ -4,18 +4,23 @@ from __future__ import absolute_import, print_function
 import binascii
 import hashlib
 import hmac
+import json
 import random
 import time
+import types
 
 import six
 from qt4s.channel.http import HttpChannel
 from six.moves.urllib.parse import urlencode
 
-from cloud_game_testlib.api3.complex.utils import obj_to_params
 from cloud_game_testlib.logging import logger as default_logger
 from cloud_game_testlib.logging.adapters import BraceMessageAdapter
 
 __author__ = 'bingxili'
+
+
+def get_json_from_response(resp):
+    return json.loads(resp.body.dumps())
 
 
 class API3Address(object):
@@ -75,6 +80,11 @@ class API3Client(object):
             raise ValueError('sign must be a list, tuple, dict, string or API3Address')
         self.address = address
 
+        host = self.address.host
+        ip = self.address.ip or host
+        port = self.address.port or 80
+        self.channel = HttpChannel((ip, port, self.address.net_area))
+
         self.version = version
         self.path = path or '/'
 
@@ -110,10 +120,8 @@ class API3Client(object):
         return signed_params
 
     def request(self, params, sign=None):
-        if not isinstance(params, dict):
-            params_dict = {}
-            obj_to_params(params_dict, params)
-            params = params_dict
+        params = params if params is not None else {}
+
         signer = self.signer or _ensure_signer(sign)
 
         injected_params = self.inject_params(params, sign=signer)
@@ -121,7 +129,6 @@ class API3Client(object):
 
         host = self.address.host
         ip = self.address.ip or host
-        port = self.address.port or 80
         headers = {
             'Host': host
         }
@@ -129,8 +136,22 @@ class API3Client(object):
 
         self.logger.info('[request] host={host} url=http://{ip}{path}?{body}', host=host, ip=ip, path=self.path,
                          body=body)
-        channel = HttpChannel((ip, port, self.address.net_area))
-        resp = channel.post(self.path, body=body, headers=headers)
+        resp = self.channel.post(self.path, body=body, headers=headers)
         self.logger.info('[response] status_code={status_code} body={body}', status_code=resp.status_code,
                          body=resp.body)
+
+        # bound json method to response
+        if not hasattr(resp, 'json'):
+            setattr(resp, 'json', types.MethodType(get_json_from_response, self))
+
         return resp
+
+    def call(self, action, params=None, sign=None):
+        params = params if params is not None else {}
+
+        params_with_action = {
+            'Action': action
+        }
+        params_with_action.update(params)
+
+        return self.request(params_with_action, sign=sign)

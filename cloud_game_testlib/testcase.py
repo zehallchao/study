@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import logging
+import json
 
 from testbase import testcase
 
 from cloud_game_testlib.api3.client import API3Client, API3Signer
-from cloud_game_testlib.api3.gs import GSAPI3
 from cloud_game_testlib.asserts import HttpAssertionMixin
 from cloud_game_testlib.conf import settings as cloud_game_settings
 from cloud_game_testlib.logging import logger as default_logger
@@ -34,4 +33,6 @@ class ClougGameTestCaseBase(HttpAssertionMixin, testcase.TestCase):
                                      sign=self.signer,
                                      logger=self._parent_logger)
 
-        self.api3 = GSAPI3(self.api3client)
+    def api3_call(self, action, params=None):
+        self.logger.info('调用API {action}, 参数: {params}', action=action, params=json.dumps(params))
+        return self.api3client.call(action, params)

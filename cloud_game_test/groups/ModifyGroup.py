@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import json
 import uuid
 
 from testbase import TestCase
@@ -24,9 +23,12 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('创建1个分组')
         group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
-
-        resp = self.api3.CreateGroup(Name=group_name, Description=group_name)
-        body_json = json.loads(resp.body.dumps())
+        params = {
+            'Name': group_name,
+            'Description': group_name
+        }
+        resp = self.api3_call('CreateGroup', params)
+        body_json = resp.json()
 
         self.group_id = get_by_path(body_json, 'Response.GroupId', None)
 
@@ -39,7 +41,12 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
         # ==========
         self.start_step('ModifyGroup')
         group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
-        resp = self.api3.ModifyGroup(GroupId=group_id, Name=group_name, Description=group_name)
+        params = {
+            'GroupId': group_id,
+            'Name': group_name,
+            'Description': group_name
+        }
+        resp = self.api3_call('ModifyGroup', params)
 
         # ==========
         self.start_step('检查返回')
@@ -47,8 +54,11 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
 
         # ==========
         self.start_step('通过DescribeGroups获取信息, 与期望信息一致')
-        resp = self.api3.DescribeGroups(GroupIds=[group_id, ])
-        body_json = json.loads(resp.body.dumps())
+        params = {
+            'GroupIds.0': group_id
+        }
+        resp = self.api3_call('DescribeGroups', params)
+        body_json = resp.json()
 
         first_group = get_by_path(body_json, 'Response.Groups.0', None)
         if self.assert_not_none('第1个分组不为空', first_group):
@@ -61,7 +71,10 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
             return
 
         self.start_step('删除创建的分组')
-        self.api3.DeleteGroup(GroupId=group_id)
+        params = {
+            'GroupId': group_id
+        }
+        resp = self.api3_call('DeleteGroup', params)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import json
-
 from testbase import TestCase
 
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
@@ -21,8 +19,11 @@ class DescribeGameRequirementsTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         self.start_step('通过DescribeUserGameList选定一个期望游戏')
-        resp = self.api3.DescribeUserGameList(GameId='')
-        body_json = json.loads(resp.body.dumps())
+        params = {
+            'GameId': ''
+        }
+        resp = self.api3_call('DescribeUserGameList', params)
+        body_json = resp.json()
 
         self.game = get_by_path(body_json, 'Response.GameList.0', None)
         self.game_id = get_by_path(self.game, 'GameId', None)
@@ -35,13 +36,16 @@ class DescribeGameRequirementsTestCase(ClougGameTestCaseBase):
 
         # ==========
         self.start_step('DescribeGameRequirements, GameId={}'.format(game_id))
-        resp = self.api3.DescribeGameRequirements(GameId=self.game_id)
+        params = {
+            'GameId': self.game_id
+        }
+        resp = self.api3_call('DescribeGameRequirements', params)
 
         # ==========
         self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
-        body_json = json.loads(resp.body.dumps())
+        body_json = resp.json()
 
         # 注意, 这里返回的是游戏运行要求, 跟游戏的InstanceType顺序不一定一致
         instance_candidates = get_by_path(body_json, 'Response.InstanceCandidates', None)
