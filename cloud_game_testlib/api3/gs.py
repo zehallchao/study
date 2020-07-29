@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function
 
 from cloud_game_testlib.api3.complex.gs import (
+    DescribeUserGameListParams, DescribeGameRequirementsParams, ModifyUserGameParams,
     DescribeGroupsParams, CreateGroupParams, ModifyGroupParams, DeleteGroupParams
 )
 from cloud_game_testlib.api3.base import API3Method
@@ -12,6 +13,13 @@ __author__ = 'bingxili'
 class GSAPI3(object):
     def __init__(self, client):
         self.client = client
+
+    # games
+    DescribeUserGameList = API3Method(DescribeUserGameListParams)
+
+    DescribeGameRequirements = API3Method(DescribeGameRequirementsParams)
+
+    ModifyUserGame = API3Method(ModifyUserGameParams)
 
     # groups
     DescribeGroups = API3Method(DescribeGroupsParams)

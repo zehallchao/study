@@ -27,11 +27,9 @@ class DescribeGroupsTestCase(ClougGameTestCaseBase):
         resp = self.api3.DescribeGroups()
 
         # ==========
-        self.start_step('检查HTTP状态码')
+        self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
-        # ==========
-        self.start_step('检查组数量, 至少为1')
         body_json = json.loads(resp.body.dumps())
 
         self.assert_gte_by_path('Response.Total至少为1', body_json, 'Response.Total', 1)
@@ -39,11 +37,9 @@ class DescribeGroupsTestCase(ClougGameTestCaseBase):
         groups = get_by_path(body_json, 'Response.Groups', [])
         self.assert_gte('Response.Groups至少有1个', len(groups), 1)
 
-        # ==========
-        self.start_step('检查第1个组为默认组')
         first_group = get_by_path(body_json, 'Response.Groups.0', None)
-        if self.assert_not_none('第1个组不为空', first_group):
-            self.assert_equal_by_path('第1个组IsDefault为True', first_group, 'IsDefault', True)
+        if self.assert_not_none('第1个分组不为空', first_group):
+            self.assert_eq_by_path('第1个分组IsDefault为True', first_group, 'IsDefault', True)
 
 
 class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
@@ -56,7 +52,7 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         # ==========
-        self.start_step('创建1个组')
+        self.start_step('创建1个期望分组')
         self.group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
 
         resp = self.api3.CreateGroup(Name=self.group_name, Description=self.group_name)
@@ -67,7 +63,7 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
     def run_test(self):
         group_id = getattr(self, 'group_id', None)
         if not group_id:
-            self.fail('创建组失败')
+            self.fail('创建期望分组失败')
             return
 
         # ==========
@@ -77,31 +73,29 @@ class DescribeGroupsByNameTestCase(ClougGameTestCaseBase):
         ])
 
         # ==========
-        self.start_step('检查HTTP状态码')
+        self.start_step('检查返回, 与期望分组一致')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
         # ==========
-        self.start_step('检查组数量为1')
         body_json = json.loads(resp.body.dumps())
 
-        self.assert_equal_by_path('Response.Total为1', body_json, 'Response.Total', 1)
+        self.assert_eq_by_path('Response.Total为1', body_json, 'Response.Total', 1)
 
         groups = get_by_path(body_json, 'Response.Groups', [])
         self.assert_equal('Response.Groups只有1个', len(groups), 1)
 
-        # ==========
-        self.start_step('检查与期望的组信息一致')
         first_group = get_by_path(body_json, 'Response.Groups.0', None)
-        if self.assert_not_none('第1个组不为空', first_group):
-            self.assert_equal_by_path('GroupId为{}'.format(self.group_id), first_group, 'GroupId', self.group_id)
-            self.assert_equal_by_path('Name为{}'.format(self.group_name), first_group, 'Name', self.group_name)
+        if self.assert_not_none('第1个分组不为空', first_group):
+            self.assert_eq_by_path('GroupId与期望分组一致为{}'.format(self.group_id), first_group, 'GroupId', self.group_id)
+            for field_name in ('Name', 'Description'):
+                self.assert_eq_by_path('{}与期望分组一致'.format(field_name), first_group, field_name, self.group_name)
 
     def post_test(self):
         group_id = getattr(self, 'group_id', None)
         if not group_id:
             return
 
-        self.start_step('删除创建的组')
+        self.start_step('删除创建的分组')
         self.api3.DeleteGroup(GroupId=group_id)
 
 

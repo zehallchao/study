@@ -22,7 +22,7 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
 
     def pre_test(self):
         # ==========
-        self.start_step('创建1个组')
+        self.start_step('创建1个分组')
         group_name = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
 
         resp = self.api3.CreateGroup(Name=group_name, Description=group_name)
@@ -33,7 +33,7 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
     def run_test(self):
         group_id = getattr(self, 'group_id', None)
         if not group_id:
-            self.fail('创建组失败')
+            self.fail('创建分组失败')
             return
 
         # ==========
@@ -42,27 +42,25 @@ class ModifyGroupTestCase(ClougGameTestCaseBase):
         resp = self.api3.ModifyGroup(GroupId=group_id, Name=group_name, Description=group_name)
 
         # ==========
-        self.start_step('检查HTTP状态码')
+        self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
 
         # ==========
-        self.start_step('通过DescribeGroups检查修改成功')
+        self.start_step('通过DescribeGroups获取信息, 与期望信息一致')
         resp = self.api3.DescribeGroups(GroupIds=[group_id, ])
         body_json = json.loads(resp.body.dumps())
 
-        # ==========
-        self.start_step('检查与期望的组信息一致')
         first_group = get_by_path(body_json, 'Response.Groups.0', None)
-        if self.assert_not_none('第1个组不为空', first_group):
-            self.assert_equal_by_path('Name为{}'.format(group_name), first_group, 'Name', group_name)
-            self.assert_equal_by_path('Description为{}'.format(group_name), first_group, 'Description', group_name)
+        if self.assert_not_none('第1个分组不为空', first_group):
+            for field_name in ('Name', 'Description'):
+                self.assert_eq_by_path('{}与期望分组一致'.format(field_name), first_group, field_name, group_name)
 
     def post_test(self):
         group_id = getattr(self, 'group_id', None)
         if not group_id:
             return
 
-        self.start_step('删除创建的组')
+        self.start_step('删除创建的分组')
         self.api3.DeleteGroup(GroupId=group_id)
 
 
