@@ -59,7 +59,7 @@ class Api3GSHelper(object):
 
         return get_by_path(body_json, 'Response.Instances', [])
 
-    def pick_instance(self, names=None, regions=None, limit=1):
+    def pick_instances(self, names=None, regions=None, limit=1):
         params = {
             'Limit': limit
         }
@@ -91,7 +91,11 @@ class Api3GSHelper(object):
         resp = self.client.call('DescribeInstances', params)
         body_json = resp.json()
 
-        return get_by_path(body_json, 'Response.Instances.0', None)
+        return get_by_path(body_json, 'Response.Instances', [])
+
+    def pick_instance(self, names=None, regions=None):
+        instances = self.pick_instances(names=names, regions=regions, limit=1)
+        return instances[0] if len(instances) > 0 else None
 
     def get_instance(self, instance_id):
         params = {
