@@ -59,23 +59,30 @@ class Api3GSHelper(object):
 
         return get_by_path(body_json, 'Response.Instances', [])
 
-    def pick_instance(self, regions=None, limit=1):
+    def pick_instance(self, names=None, regions=None, limit=1):
         params = {
             'Limit': limit
         }
 
         filters = []
 
-        if regions is not None:
+        d = {
+            'Name': names,
+            'Region': regions
+        }
+
+        for filter_name, filter_values in d.items():
+            if filter_values is None:
+                continue
+
             filter_ = {
-                'Name': 'Region'
+                'Name': filter_name
             }
             filters.append(filter_)
-
-            if not isinstance(regions, (list, tuple)):
-                regions = [regions, ]
-            for i, region in enumerate(regions):
-                filter_['Values.{}'.format(i)] = region
+            if not isinstance(filter_values, (list, tuple)):
+                filter_values = [filter_values, ]
+            for i, filter_value in enumerate(filter_values):
+                filter_['Values.{}'.format(i)] = filter_value
 
         for i, filter_ in enumerate(filters):
             for k, v in filter_.items():

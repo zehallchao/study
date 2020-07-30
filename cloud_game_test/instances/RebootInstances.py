@@ -23,7 +23,7 @@ class RebootInstancesTestCase(ClougGameTestCaseBase):
     def pre_test(self):
         # ==========
         self.start_step('通过DescribeInstances选定一个期望实例')
-        self.instance = self.api3_gs_helper.pick_instance(regions=['ap-shanghai'])
+        self.instance = self.api3_gs_helper.pick_instance(names=['AUTOTEST-', ], regions=['ap-shanghai'])
         self.instance_region = get_by_path(self.instance, 'Region', None)
         self.instance_id = get_by_path(self.instance, 'InstanceId', None)
 
