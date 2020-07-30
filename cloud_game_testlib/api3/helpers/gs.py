@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
+import time
+
 from cloud_game_testlib.utils import get_by_path
 
 __author__ = 'bingxili'
@@ -50,3 +52,65 @@ class Api3GSHelper(object):
         }
         resp = self.client.call('DeleteGroup', params)
         return resp.status_code == 200
+
+    def list_instances(self):
+        resp = self.client.call('DescribeInstances')
+        body_json = resp.json()
+
+        return get_by_path(body_json, 'Response.Instances', [])
+
+    def pick_instance(self, regions=None, limit=1):
+        params = {
+            'Limit': limit
+        }
+
+        filters = []
+
+        if regions is not None:
+            filter_ = {
+                'Name': 'Region'
+            }
+            filters.append(filter_)
+
+            if not isinstance(regions, (list, tuple)):
+                regions = [regions, ]
+            for i, region in enumerate(regions):
+                filter_['Values.{}'.format(i)] = region
+
+        for i, filter_ in enumerate(filters):
+            for k, v in filter_.items():
+                params['Filters.{}.{}'.format(i, k)] = v
+
+        resp = self.client.call('DescribeInstances', params)
+        body_json = resp.json()
+
+        return get_by_path(body_json, 'Response.Instances.0', None)
+
+    def get_instance(self, instance_id):
+        params = {
+            'InstanceIds.0': instance_id
+        }
+        resp = self.client.call('DescribeInstances', params)
+        body_json = resp.json()
+        return get_by_path(body_json, 'Response.Instances.0', None)
+
+    def get_instance_status(self, instance_id):
+        params = {
+            'InstanceIds.0': instance_id
+        }
+        resp = self.client.call('DescribeInstancesStatus', params)
+        body_json = resp.json()
+        return get_by_path(body_json, 'Response.InstanceStatuses.0', None)
+
+    def wait_instance_status(self, instance_id, condition, interval=1, timeout=30):
+        start_time = time.time()
+        while True:
+            instance_status = self.get_instance_status(instance_id)
+            if condition(instance_status):
+                return True
+
+            end_time = time.time()
+            if end_time - start_time > timeout:
+                return False
+
+            time.sleep(interval)
