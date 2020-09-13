@@ -2,17 +2,23 @@
 from __future__ import absolute_import, print_function
 
 from testbase import TestCase
-
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
 from cloud_game_testlib.utils import get_by_path
 
 __author__ = 'bingxili'
 
-
+class DescribeUserGameListTestCase(ClougGameTestCaseBase):
+   '''DescribeUserGameListTestCase查询用户游戏列表
+   '''
+    #===================
+    self.start_step('DescribeUserGameListTestCase查询用户游戏列表')
+    def __init__(, ):
+        super(DecribeUserGameList, self).__init__(*args))
+        
 class DescribeUserGameListTestCase(ClougGameTestCaseBase):
     '''DescribeUserGameList无参数
     '''
-    owner = "libingxi"
+    owner = "libingxi""ppeterzhao"
     timeout = 5
     priority = TestCase.EnumPriority.High
     status = TestCase.EnumStatus.Ready
@@ -23,9 +29,8 @@ class DescribeUserGameListTestCase(ClougGameTestCaseBase):
         # TODO 这个接口设计有些奇怪, 如果开放的话, 需要修改
         params = {
             'GameId': ''
-        }
+            }
         resp = self.api3client.call('DescribeUserGameList', params)
-
         # ==========
         self.start_step('检查返回')
         self.assert_http_ok('HTTP状态码必须为200', resp)
