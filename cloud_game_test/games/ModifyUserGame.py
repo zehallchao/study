@@ -4,13 +4,11 @@ from __future__ import absolute_import, print_function
 import uuid
 
 from testbase import TestCase
-
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
 from cloud_game_testlib.utils import get_by_path
 
 __author__ = 'bingxili'
-
-
+         
 class ModifyUserGameTestCase(ClougGameTestCaseBase):
     '''ModifyUserGame
     '''
@@ -36,7 +34,8 @@ class ModifyUserGameTestCase(ClougGameTestCaseBase):
         self.game['Description'] = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
         params = {
             'GameId': game_id,
-            'Description': self.game['Description']
+            'Description': 
+            self.game['Description']
         }
         resp = self.api3client.call('ModifyUserGame', params)
 
