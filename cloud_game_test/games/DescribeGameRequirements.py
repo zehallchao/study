@@ -2,7 +2,6 @@
 from __future__ import absolute_import, print_function
 
 from testbase import TestCase
-
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
 from cloud_game_testlib.utils import get_by_path
 
@@ -46,6 +45,27 @@ class DescribeGameRequirementsTestCase(ClougGameTestCaseBase):
         instance_candidates = get_by_path(body_json, 'Response.InstanceCandidates', None)
         self.assert_not_none('Response.InstanceCandidates不为空', instance_candidates)
 
+class DescribeGameRequirementsTestCasegameidnull(ClougGameTestCaseBase):
+    '''DescribeGameRequirements, gameid为空
+    '''
+    owner = "ppeterzhao"
+    timeout = 5
+    priority = TestCase.EnumPriority.High
+    status = TestCase.EnumStatus.Ready
+
+    def run_test(self):
+        #===============
+        self.start_step('DescribeGameRequirements为空')
+        params = {
+            'GameId': None
+            }
+        resp = self.api3client.call('DescribeGameRequirements', params)
+         # ==========
+        self.start_step('检查返回')
+        self.assert_http_ok('HTTP状态码必须为200', resp)
+        body_json = resp.json()
+        games = get_by_path(body_json, 'Response.requirement', None)
+        self.assert_none('Response.requirement为空', games)
 
 if __name__ == '__main__':
     DescribeGameRequirementsTestCase().debug_run()
