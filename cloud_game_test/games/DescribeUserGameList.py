@@ -33,7 +33,6 @@ class DescribeUserGameListTestCase(ClougGameTestCaseBase):
         games = get_by_path(body_json, 'Response.GameList', None)
         self.assert_not_none('Response.GameList不为空', games)
 
-
 class DescribeUserGameListByGameIdTestCase(ClougGameTestCaseBase):
     '''DescribeUserGameList根据GameId精确查询
     '''

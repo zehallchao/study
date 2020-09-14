@@ -52,6 +52,41 @@ class ModifyUserGameTestCase(ClougGameTestCaseBase):
                 expect_value = get_by_path(self.game, field_name)
                 self.assert_eq_by_path('{}与期望游戏一致'.format(field_name), game, field_name, expect_value)
 
+class ModifyUserGameTestCasegameidnull(ClougGameTestCaseBase):
+    '''ModifyUserGame gameid为空
+    '''
+    owner = "ppeterzhao"
+    timeout = 5
+    priority = TestCase.EnumPriority.High
+    status = TestCase.EnumStatus.Ready
+
+    def pre_test(self):
+        self.start_step('通过DescribeUserGameList选定一个期望游戏')
+        games = self.api3_gs_helper.list_user_games()
+        self.game = games[0] if games else None
+        self.game_id = get_by_path(self.game, 'GameId', None)
+
+    def run_test(self):
+        game_id = getattr(self, 'game_id', None)
+        if not game_id:
+            self.fail('选定期望游戏失败, 游戏列表可能为空, 或者接口返回错误')
+            return
+
+        # ==========
+        self.start_step('ModifyUserGame, GameId={}'.format(game_id))
+        self.game['Description'] = 'AUTOTEST-{}'.format(str(uuid.uuid4()))
+        params = {
+            'GameId': None,
+            'Description': 
+            self.game['Description']
+        }
+        resp = self.api3client.call('ModifyUserGame', params)
+
+        # ==========
+        self.start_step('检查返回')
+        self.assert_http_ok('HTTP状态码必须为200', resp)
+        #=====================
+
 
 if __name__ == '__main__':
     ModifyUserGameTestCase().debug_run()
