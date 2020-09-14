@@ -5,20 +5,13 @@ from testbase import TestCase
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
 from cloud_game_testlib.utils import get_by_path
 
-__author__ = 'bingxili'
+__author__ = 'bingxili' 'ppeterzhao'
 
-class DescribeUserGameListTestCase(ClougGameTestCaseBase):
-   '''DescribeUserGameListTestCase查询用户游戏列表
-   '''
-    #===================
-    self.start_step('DescribeUserGameListTestCase查询用户游戏列表')
-    def __init__(, ):
-        super(DecribeUserGameList, self).__init__(*args))
-        
+
 class DescribeUserGameListTestCase(ClougGameTestCaseBase):
     '''DescribeUserGameList无参数
     '''
-    owner = "libingxi""ppeterzhao"
+    owner = "libingxi"
     timeout = 5
     priority = TestCase.EnumPriority.High
     status = TestCase.EnumStatus.Ready
