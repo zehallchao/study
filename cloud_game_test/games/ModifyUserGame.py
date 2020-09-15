@@ -7,7 +7,7 @@ from testbase import TestCase
 from cloud_game_testlib.testcase import ClougGameTestCaseBase
 from cloud_game_testlib.utils import get_by_path
 
-__author__ = 'bingxili'
+__author__ = 'bingxili'&'ppeterzhao'
          
 class ModifyUserGameTestCase(ClougGameTestCaseBase):
     '''ModifyUserGame
